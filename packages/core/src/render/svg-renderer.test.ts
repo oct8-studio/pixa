@@ -136,3 +136,47 @@ describe('renderSVG image blend', () => {
     expect(blendIndex).toBeLessThan(firstModuleIndex)
   })
 })
+
+describe('renderSVG patternImage', () => {
+  it('defines a pattern from the dataUrl and layers it over an opaque foreground base', () => {
+    const svg = renderSVG(matrix, resolveStyle({ patternImage: { dataUrl: 'data:image/png;base64,xyz' } }))
+    expect(svg).toContain('<pattern id="patternImage"')
+    expect(svg).toContain('<image href="data:image/png;base64,xyz"')
+    expect(svg).toContain('fill="url(#patternImage)"')
+    // The opaque solid-color base must still be present under the pattern overlay —
+    // this is a contrast-floor guarantee, not an incidental detail: a fully white/light
+    // region in the uploaded image must not be able to wash a module out to invisibility
+    // against the background (verified against a real jsQR decode in generate-qr.test.ts).
+    expect(svg).toContain('fill="#000000"')
+  })
+
+  it('renders the pattern overlay at a fixed opacity, never fully opaque', () => {
+    const svg = renderSVG(matrix, resolveStyle({ patternImage: { dataUrl: 'data:image/png;base64,xyz' } }))
+    expect(svg).toMatch(/fill="url\(#patternImage\)" opacity="0\.\d+"/)
+  })
+
+  it('escapes a patternImage dataUrl containing markup-breaking characters', () => {
+    const rawDataUrl = `data:image/png;base64,AAA" onload="alert(1)`
+    const svg = renderSVG(matrix, { ...resolveStyle(), patternImage: { dataUrl: rawDataUrl } })
+    expect(svg).not.toContain(rawDataUrl)
+    expect(svg).toContain('&quot; onload=&quot;alert(1)')
+  })
+})
+
+describe('renderSVG ring eyes', () => {
+  const bigMatrix: boolean[][] = Array.from({ length: 25 }, () => Array.from({ length: 25 }, () => false))
+  bigMatrix[12][12] = true
+
+  it('renders three concentric-circle ring markers and skips per-cell rendering inside finder patterns', () => {
+    const svg = renderSVG(bigMatrix, resolveStyle({ eyeShape: 'ring', dotShape: 'square' }))
+    const circleCount = (svg.match(/<circle/g) ?? []).length
+    expect(circleCount).toBe(9) // 3 finder patterns x 3 concentric circles each
+  })
+
+  it('colors ring eyes from the pattern image when both are set', () => {
+    const svg = renderSVG(bigMatrix, resolveStyle({ eyeShape: 'ring', patternImage: { dataUrl: 'data:image/png;base64,xyz' } }))
+    const fillUrlCount = (svg.match(/fill="url\(#patternImage\)"/g) ?? []).length
+    // 3 rings x 2 filled circles each (outer + inner; middle gap uses backgroundColor) + 1 dot module
+    expect(fillUrlCount).toBe(7)
+  })
+})

@@ -27,7 +27,7 @@ function clampRatio(value: number | undefined, defaultValue: number, max: number
 }
 
 export function resolveStyle(style: StyleOptions = {}): ResolvedStyle {
-  const hasLogoOrBlend = !!style.logo || !!style.imageBlend
+  const hasLogoOrBlend = !!style.logo || !!style.imageBlend || !!style.patternImage
 
   const foregroundColor = validateColor(style.foregroundColor ?? '#000000', 'foregroundColor')
   const backgroundColor = validateColor(style.backgroundColor ?? '#ffffff', 'backgroundColor')
@@ -38,6 +38,9 @@ export function resolveStyle(style: StyleOptions = {}): ResolvedStyle {
     dotShape: style.dotShape ?? 'square',
     eyeShape: style.eyeShape ?? 'square',
     errorCorrectionLevel: hasLogoOrBlend ? 'H' : style.errorCorrectionLevel ?? 'M',
+    patternImage: style.patternImage
+      ? { dataUrl: validateDataUrl(style.patternImage.dataUrl, 'patternImage.dataUrl') }
+      : undefined,
     logo: style.logo
       ? {
           dataUrl: validateDataUrl(style.logo.dataUrl, 'logo.dataUrl'),

@@ -77,10 +77,10 @@ button {
 .app-body {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(320px, 420px) 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(340px, 480px) minmax(360px, 1fr);
+  gap: 32px;
   padding: 24px;
-  max-width: 1280px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
 }
@@ -178,6 +178,9 @@ button {
 .field input:not([type]),
 .field textarea,
 .field select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 9px 12px;
@@ -221,11 +224,18 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+
+.color-field input[type="text"] {
+  flex: 1;
+  min-width: 0;
 }
 
 .color-swatch {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   padding: 0;
@@ -283,6 +293,13 @@ button {
 
 .shape-swatch.circle {
   border-radius: 50%;
+}
+
+.shape-swatch.ring {
+  border-radius: 50%;
+  background: none;
+  border: 3px solid currentColor;
+  box-sizing: border-box;
 }
 
 .dropzone {
@@ -374,29 +391,11 @@ button {
   text-align: right;
 }
 
-.toggle-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.toggle-section-header .card-title {
-  margin-bottom: 0;
-}
-
-.toggle-chevron {
-  color: var(--text-muted);
-  transition: transform 0.15s ease;
-  font-size: 0.75rem;
-}
-
-.toggle-chevron.is-open {
-  transform: rotate(90deg);
-}
-
-.toggle-section-body {
-  margin-top: 14px;
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+  border: none;
 }
 
 .preview-frame {
@@ -404,12 +403,12 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  padding: 24px;
+  padding: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 360px;
+  max-width: 440px;
   aspect-ratio: 1;
 }
 
@@ -433,7 +432,7 @@ button {
   display: flex;
   gap: 10px;
   width: 100%;
-  max-width: 360px;
+  max-width: 440px;
 }
 
 .btn {
