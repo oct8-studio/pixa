@@ -8,7 +8,7 @@ function renderModule(x: number, y: number, size: number, shape: ModuleShape, co
   if (shape === 'circle') {
     const cx = x + size / 2
     const cy = y + size / 2
-    const r = size * 0.4
+    const r = size * 0.52
     return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" />`
   }
   if (shape === 'rounded') {
