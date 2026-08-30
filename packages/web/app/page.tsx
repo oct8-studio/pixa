@@ -1,3 +1,23 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import type { QRContent, StyleOptions } from '@pixa/core'
+import { ContentForm } from './components/ContentForm'
+import { StylePanel } from './components/StylePanel'
+import { QrPreview } from './components/QrPreview'
+import { generatePreview } from '../lib/qr'
+
 export default function Page() {
-  return <main>QR Generator — editor coming in the next task.</main>
+  const [content, setContent] = useState<QRContent>({ type: 'url', value: 'https://example.com' })
+  const [style, setStyle] = useState<StyleOptions>({})
+
+  const { svg } = useMemo(() => generatePreview(content, style), [content, style])
+
+  return (
+    <main>
+      <ContentForm onChange={setContent} />
+      <StylePanel onChange={setStyle} />
+      <QrPreview svg={svg} />
+    </main>
+  )
 }

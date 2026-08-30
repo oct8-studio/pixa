@@ -1,4 +1,3 @@
-import sharp from 'sharp'
 import { encodeContent, type QRContent } from './content'
 import { generateMatrix } from './matrix/generate-matrix'
 import { resolveStyle } from './style/validate'
@@ -13,6 +12,9 @@ export function generateQR(content: QRContent, style: StyleOptions = {}) {
 
   return {
     svg,
-    toPng: (): Promise<Buffer> => sharp(Buffer.from(svg)).png().toBuffer()
+    toPng: async (): Promise<Buffer> => {
+      const sharp = await import('sharp').then(m => m.default)
+      return sharp(Buffer.from(svg)).png().toBuffer()
+    }
   }
 }
