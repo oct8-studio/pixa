@@ -7,30 +7,19 @@ import { ImageDropzone } from './ImageDropzone'
 const DOT_SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
 const EYE_SHAPES: EyeShape[] = ['square', 'rounded', 'circle', 'ring']
 
-// Brand pattern and background image both stylize the whole canvas, so combining them
-// would just mush two different full-image treatments together — they stay mutually
-// exclusive. Logo is a small center overlay that doesn't compete with either, so it's a
-// separate, independently-combinable toggle instead of part of this picker.
-type BackgroundStyle = 'none' | 'pattern' | 'blend'
-
-const BACKGROUND_STYLES: { value: BackgroundStyle; label: string }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'pattern', label: 'Brand pattern' },
-  { value: 'blend', label: 'Background image' }
-]
-
 interface StyleState {
   foregroundColor: string
   backgroundColor: string
   dotShape: ModuleShape
   eyeShape: EyeShape
-  backgroundStyle: BackgroundStyle
-  patternDataUrl: string | null
-  blendDataUrl: string | null
-  blendOpacity: number
   logoEnabled: boolean
   logoDataUrl: string | null
   logoSizeRatio: number
+  patternEnabled: boolean
+  patternDataUrl: string | null
+  blendEnabled: boolean
+  blendDataUrl: string | null
+  blendOpacity: number
   frameEnabled: boolean
   frameText: string
   frameColor: string
@@ -42,13 +31,14 @@ const INITIAL_STATE: StyleState = {
   backgroundColor: '#ffffff',
   dotShape: 'square',
   eyeShape: 'square',
-  backgroundStyle: 'none',
-  patternDataUrl: null,
-  blendDataUrl: null,
-  blendOpacity: 0.15,
   logoEnabled: false,
   logoDataUrl: null,
   logoSizeRatio: 0.2,
+  patternEnabled: false,
+  patternDataUrl: null,
+  blendEnabled: false,
+  blendDataUrl: null,
+  blendOpacity: 0.15,
   frameEnabled: false,
   frameText: 'Scan me',
   frameColor: '#000000',
@@ -62,9 +52,8 @@ function buildStyle(s: StyleState): StyleOptions {
     dotShape: s.dotShape,
     eyeShape: s.eyeShape,
     logo: s.logoEnabled && s.logoDataUrl ? { dataUrl: s.logoDataUrl, sizeRatio: s.logoSizeRatio } : undefined,
-    patternImage: s.backgroundStyle === 'pattern' && s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined,
-    imageBlend:
-      s.backgroundStyle === 'blend' && s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
+    patternImage: s.patternEnabled && s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined,
+    imageBlend: s.blendEnabled && s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
     frame: s.frameEnabled ? { text: s.frameText, color: s.frameColor, textColor: s.frameTextColor } : undefined
   }
 }
@@ -199,24 +188,15 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
 
           <div className="divider" />
 
-          <div className="field">
-            <label>Background style</label>
-            <div className="segmented" role="group" aria-label="Background style">
-              {BACKGROUND_STYLES.map((bg) => (
-                <button
-                  key={bg.value}
-                  type="button"
-                  className="segmented-option"
-                  aria-pressed={state.backgroundStyle === bg.value}
-                  onClick={() => update({ backgroundStyle: bg.value })}
-                >
-                  {bg.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {state.backgroundStyle === 'pattern' && (
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={state.patternEnabled}
+              onChange={(e) => update({ patternEnabled: e.target.checked })}
+            />
+            Color the pattern from a brand image
+          </label>
+          {state.patternEnabled && (
             <ImageDropzone
               label="Upload brand image"
               hint="Colors the whole QR pattern like a logo — try pairing with ring eyes"
@@ -225,7 +205,17 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
             />
           )}
 
-          {state.backgroundStyle === 'blend' && (
+          <div className="divider" />
+
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={state.blendEnabled}
+              onChange={(e) => update({ blendEnabled: e.target.checked })}
+            />
+            Blend an image behind the code
+          </label>
+          {state.blendEnabled && (
             <>
               <ImageDropzone
                 label="Upload image"

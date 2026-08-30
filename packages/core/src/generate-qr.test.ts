@@ -99,4 +99,27 @@ describe('generateQR scan round-trip', () => {
     const decoded = await decode(await toPng())
     expect(decoded).toBe('https://example.com')
   })
+
+  it('round-trips patternImage and imageBlend combined (independent layers, not mutually exclusive)', async () => {
+    const { toPng } = generateQR(
+      { type: 'url', value: 'https://example.com' },
+      { patternImage: { dataUrl: TINY_PNG_DATA_URL }, imageBlend: { dataUrl: TINY_PNG_DATA_URL, opacity: 0.15 } }
+    )
+    const decoded = await decode(await toPng())
+    expect(decoded).toBe('https://example.com')
+  })
+
+  it('round-trips every background/branding feature combined at once', async () => {
+    const { toPng } = generateQR(
+      { type: 'url', value: 'https://example.com' },
+      {
+        patternImage: { dataUrl: TINY_PNG_DATA_URL },
+        imageBlend: { dataUrl: TINY_PNG_DATA_URL, opacity: 0.15 },
+        logo: { dataUrl: TINY_PNG_DATA_URL, sizeRatio: 0.2 },
+        eyeShape: 'ring'
+      }
+    )
+    const decoded = await decode(await toPng())
+    expect(decoded).toBe('https://example.com')
+  })
 })
