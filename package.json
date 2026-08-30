@@ -1,0 +1,13 @@
+{
+  "name": "pixa",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r build",
+    "predev": "pnpm --filter @pixa/core build",
+    "dev": "pnpm --filter @pixa/web dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

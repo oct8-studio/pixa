@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build `@qr-gen/core` (a portable, framework-agnostic TS engine for generating styled, static QR codes) and a Next.js web app that consumes it.
+**Goal:** Build `@pixa/core` (a portable, framework-agnostic TS engine for generating styled, static QR codes) and a Next.js web app that consumes it.
 
 **Architecture:** pnpm workspace monorepo with `packages/core` (zero framework deps — encoders → matrix generation via `qrcode` → SVG renderer with style validation → PNG rasterization via `sharp`) and `packages/web` (Next.js, fully client-side, no backend/storage).
 
@@ -45,7 +45,7 @@ packages:
 
 ```json
 {
-  "name": "qr-gen",
+  "name": "pixa",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -88,7 +88,7 @@ dist/
 ```
 MIT License
 
-Copyright (c) 2026 qr-gen contributors
+Copyright (c) 2026 pixa contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -112,7 +112,7 @@ SOFTWARE.
 - [ ] **Step 6: Create `README.md`**
 
 ```markdown
-# qr-gen
+# pixa
 
 Open-source, customizable QR code generator. `packages/core` is a
 framework-agnostic TypeScript engine you can copy directly into your own
@@ -153,7 +153,7 @@ git commit -m "chore: scaffold pnpm monorepo"
 
 ```json
 {
-  "name": "@qr-gen/core",
+  "name": "@pixa/core",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -1193,14 +1193,14 @@ git commit -m "feat(core): add public generateQR API with PNG export and scan ro
 - Create: `packages/web/app/page.tsx` (placeholder, replaced fully in Task 12)
 
 **Interfaces:**
-- Consumes: `@qr-gen/core`'s `generateQR`, `QRContent`, `StyleOptions` (Task 10).
-- Produces: `generatePreview(content: QRContent, style?: StyleOptions) → { svg: string }` in `lib/qr.ts` — Task 12's components import this, not `@qr-gen/core` directly, so all core-facing calls are in one place.
+- Consumes: `@pixa/core`'s `generateQR`, `QRContent`, `StyleOptions` (Task 10).
+- Produces: `generatePreview(content: QRContent, style?: StyleOptions) → { svg: string }` in `lib/qr.ts` — Task 12's components import this, not `@pixa/core` directly, so all core-facing calls are in one place.
 
 - [ ] **Step 1: Create `packages/web/package.json`**
 
 ```json
 {
-  "name": "@qr-gen/web",
+  "name": "@pixa/web",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
@@ -1211,7 +1211,7 @@ git commit -m "feat(core): add public generateQR API with PNG export and scan ro
     "lint": "next lint"
   },
   "dependencies": {
-    "@qr-gen/core": "workspace:*",
+    "@pixa/core": "workspace:*",
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
@@ -1251,7 +1251,7 @@ export default nextConfig
 - [ ] **Step 4: Create `packages/web/lib/qr.ts`**
 
 ```ts
-import { generateQR, type QRContent, type StyleOptions } from '@qr-gen/core'
+import { generateQR, type QRContent, type StyleOptions } from '@pixa/core'
 
 export function generatePreview(content: QRContent, style: StyleOptions = {}): { svg: string } {
   const { svg } = generateQR(content, style)
@@ -1316,7 +1316,7 @@ git commit -m "feat(web): scaffold Next.js app with core wrapper"
 'use client'
 
 import { useState } from 'react'
-import type { QRContent } from '@qr-gen/core'
+import type { QRContent } from '@pixa/core'
 
 const CONTENT_TYPES = ['url', 'wifi', 'vcard', 'email', 'sms', 'tel'] as const
 
@@ -1353,7 +1353,7 @@ export function ContentForm({ onChange }: { onChange: (content: QRContent) => vo
 'use client'
 
 import { useState } from 'react'
-import type { StyleOptions, ModuleShape } from '@qr-gen/core'
+import type { StyleOptions, ModuleShape } from '@pixa/core'
 
 const SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
 
@@ -1406,7 +1406,7 @@ export function QrPreview({ svg }: { svg: string }) {
 'use client'
 
 import { useMemo, useState } from 'react'
-import type { QRContent, StyleOptions } from '@qr-gen/core'
+import type { QRContent, StyleOptions } from '@pixa/core'
 import { ContentForm } from './components/ContentForm'
 import { StylePanel } from './components/StylePanel'
 import { QrPreview } from './components/QrPreview'
