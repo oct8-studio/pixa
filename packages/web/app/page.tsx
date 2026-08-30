@@ -5,6 +5,7 @@ import type { QRContent, StyleOptions } from '@pixa/core'
 import { ContentForm } from './components/ContentForm'
 import { StylePanel } from './components/StylePanel'
 import { QrPreview } from './components/QrPreview'
+import { DownloadButtons } from './components/DownloadButtons'
 import { generatePreview } from '../lib/qr'
 
 export default function Page() {
@@ -18,6 +19,7 @@ export default function Page() {
       <ContentForm onChange={setContent} />
       <StylePanel onChange={setStyle} />
       <QrPreview svg={svg} />
+      <DownloadButtons svg={svg} />
     </main>
   )
 }
