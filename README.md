@@ -1,4 +1,4 @@
-# qr-gen
+# pixa
 
 Open-source, customizable QR code generator. `packages/core` is a
 framework-agnostic TypeScript engine you can copy directly into your own
