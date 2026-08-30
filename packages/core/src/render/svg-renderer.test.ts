@@ -84,3 +84,14 @@ describe('renderSVG logo and frame', () => {
     expect(heightOf(withFrame)).toBe(heightOf(withoutFrame) + 40)
   })
 })
+
+describe('renderSVG image blend', () => {
+  it('renders the blend image behind the modules at the resolved opacity', () => {
+    const svg = renderSVG(matrix, resolveStyle({ imageBlend: { dataUrl: 'data:image/png;base64,xyz', opacity: 0.15 } }))
+    expect(svg).toContain('<image href="data:image/png;base64,xyz"')
+    expect(svg).toContain('opacity="0.15"')
+    const blendIndex = svg.indexOf('data:image/png;base64,xyz')
+    const firstModuleIndex = svg.indexOf('fill="#000000"', blendIndex)
+    expect(blendIndex).toBeLessThan(firstModuleIndex)
+  })
+})

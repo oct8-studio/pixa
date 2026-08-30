@@ -23,6 +23,12 @@ export function renderSVG(matrix: boolean[][], style: ResolvedStyle): string {
   const quietZone = QUIET_ZONE_MODULES * MODULE_SIZE
   const dimension = gridSize * MODULE_SIZE + quietZone * 2
 
+  let blendLayer = ''
+  if (style.imageBlend) {
+    const contentSize = gridSize * MODULE_SIZE
+    blendLayer = `<image href="${style.imageBlend.dataUrl}" x="${quietZone}" y="${quietZone}" width="${contentSize}" height="${contentSize}" opacity="${style.imageBlend.opacity}" preserveAspectRatio="xMidYMid slice" />`
+  }
+
   let modules = ''
   for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
@@ -58,6 +64,7 @@ export function renderSVG(matrix: boolean[][], style: ResolvedStyle): string {
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${totalHeight}" viewBox="0 0 ${dimension} ${totalHeight}">` +
     `<rect x="0" y="0" width="${dimension}" height="${dimension}" fill="${style.backgroundColor}" />` +
+    blendLayer +
     modules +
     logoLayer +
     frameLayer +
