@@ -85,6 +85,33 @@ describe('renderSVG logo and frame', () => {
   })
 })
 
+describe('renderSVG escaping', () => {
+  // These tests build a ResolvedStyle by hand (bypassing resolveStyle's own
+  // validation, which is covered separately in style/validate.test.ts) so that
+  // renderSVG's own escaping behavior is proven in isolation, as defense in depth.
+
+  it('escapes frame text containing markup-breaking characters', () => {
+    const raw = `</text><script>alert(1)</script>&"'`
+    const svg = renderSVG(matrix, { ...resolveStyle(), frame: { text: raw, color: '#000000', textColor: '#ffffff' } })
+    expect(svg).not.toContain(raw)
+    expect(svg).toContain('&lt;/text&gt;&lt;script&gt;alert(1)&lt;/script&gt;&amp;&quot;&apos;')
+  })
+
+  it('escapes frame color and textColor attribute values', () => {
+    const rawColor = `#000" onload="alert(2)`
+    const svg = renderSVG(matrix, { ...resolveStyle(), frame: { text: 'hi', color: rawColor, textColor: rawColor } })
+    expect(svg).not.toContain(rawColor)
+    expect(svg).toContain('&quot; onload=&quot;alert(2)')
+  })
+
+  it('escapes foreground and background colors', () => {
+    const rawColor = `#000" onload="alert(2)`
+    const svg = renderSVG(matrix, { ...resolveStyle(), foregroundColor: rawColor, backgroundColor: rawColor })
+    expect(svg).not.toContain(rawColor)
+    expect(svg).toContain('&quot; onload=&quot;alert(2)')
+  })
+})
+
 describe('renderSVG image blend', () => {
   it('renders the blend image behind the modules at the resolved opacity', () => {
     const svg = renderSVG(matrix, resolveStyle({ imageBlend: { dataUrl: 'data:image/png;base64,xyz', opacity: 0.15 } }))
