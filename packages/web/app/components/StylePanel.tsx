@@ -7,11 +7,14 @@ import { ImageDropzone } from './ImageDropzone'
 const DOT_SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
 const EYE_SHAPES: EyeShape[] = ['square', 'rounded', 'circle', 'ring']
 
-type BrandingMode = 'none' | 'logo' | 'pattern' | 'blend'
+// Brand pattern and background image both stylize the whole canvas, so combining them
+// would just mush two different full-image treatments together — they stay mutually
+// exclusive. Logo is a small center overlay that doesn't compete with either, so it's a
+// separate, independently-combinable toggle instead of part of this picker.
+type BackgroundStyle = 'none' | 'pattern' | 'blend'
 
-const BRANDING_MODES: { value: BrandingMode; label: string }[] = [
+const BACKGROUND_STYLES: { value: BackgroundStyle; label: string }[] = [
   { value: 'none', label: 'None' },
-  { value: 'logo', label: 'Logo' },
   { value: 'pattern', label: 'Brand pattern' },
   { value: 'blend', label: 'Background image' }
 ]
@@ -21,12 +24,13 @@ interface StyleState {
   backgroundColor: string
   dotShape: ModuleShape
   eyeShape: EyeShape
-  brandingMode: BrandingMode
-  logoDataUrl: string | null
-  logoSizeRatio: number
+  backgroundStyle: BackgroundStyle
   patternDataUrl: string | null
   blendDataUrl: string | null
   blendOpacity: number
+  logoEnabled: boolean
+  logoDataUrl: string | null
+  logoSizeRatio: number
   frameEnabled: boolean
   frameText: string
   frameColor: string
@@ -38,12 +42,13 @@ const INITIAL_STATE: StyleState = {
   backgroundColor: '#ffffff',
   dotShape: 'square',
   eyeShape: 'square',
-  brandingMode: 'none',
-  logoDataUrl: null,
-  logoSizeRatio: 0.2,
+  backgroundStyle: 'none',
   patternDataUrl: null,
   blendDataUrl: null,
   blendOpacity: 0.15,
+  logoEnabled: false,
+  logoDataUrl: null,
+  logoSizeRatio: 0.2,
   frameEnabled: false,
   frameText: 'Scan me',
   frameColor: '#000000',
@@ -56,9 +61,10 @@ function buildStyle(s: StyleState): StyleOptions {
     backgroundColor: s.backgroundColor,
     dotShape: s.dotShape,
     eyeShape: s.eyeShape,
-    logo: s.brandingMode === 'logo' && s.logoDataUrl ? { dataUrl: s.logoDataUrl, sizeRatio: s.logoSizeRatio } : undefined,
-    patternImage: s.brandingMode === 'pattern' && s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined,
-    imageBlend: s.brandingMode === 'blend' && s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
+    logo: s.logoEnabled && s.logoDataUrl ? { dataUrl: s.logoDataUrl, sizeRatio: s.logoSizeRatio } : undefined,
+    patternImage: s.backgroundStyle === 'pattern' && s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined,
+    imageBlend:
+      s.backgroundStyle === 'blend' && s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
     frame: s.frameEnabled ? { text: s.frameText, color: s.frameColor, textColor: s.frameTextColor } : undefined
   }
 }
@@ -162,24 +168,15 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
       <div className="card">
         <p className="card-title">Branding</p>
         <div className="field-group">
-          <div className="field">
-            <label>Technique</label>
-            <div className="segmented" role="group" aria-label="Branding technique">
-              {BRANDING_MODES.map((mode) => (
-                <button
-                  key={mode.value}
-                  type="button"
-                  className="segmented-option"
-                  aria-pressed={state.brandingMode === mode.value}
-                  onClick={() => update({ brandingMode: mode.value })}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {state.brandingMode === 'logo' && (
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={state.logoEnabled}
+              onChange={(e) => update({ logoEnabled: e.target.checked })}
+            />
+            Add a logo
+          </label>
+          {state.logoEnabled && (
             <>
               <ImageDropzone
                 label="Upload logo"
@@ -200,7 +197,26 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
             </>
           )}
 
-          {state.brandingMode === 'pattern' && (
+          <div className="divider" />
+
+          <div className="field">
+            <label>Background style</label>
+            <div className="segmented" role="group" aria-label="Background style">
+              {BACKGROUND_STYLES.map((bg) => (
+                <button
+                  key={bg.value}
+                  type="button"
+                  className="segmented-option"
+                  aria-pressed={state.backgroundStyle === bg.value}
+                  onClick={() => update({ backgroundStyle: bg.value })}
+                >
+                  {bg.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {state.backgroundStyle === 'pattern' && (
             <ImageDropzone
               label="Upload brand image"
               hint="Colors the whole QR pattern like a logo — try pairing with ring eyes"
@@ -209,7 +225,7 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
             />
           )}
 
-          {state.brandingMode === 'blend' && (
+          {state.backgroundStyle === 'blend' && (
             <>
               <ImageDropzone
                 label="Upload image"
