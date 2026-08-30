@@ -27,3 +27,40 @@ describe('renderSVG', () => {
     expect(matches.length).toBe(darkModuleCount)
   })
 })
+
+describe('renderSVG shapes', () => {
+  it('renders circle modules as <circle> when dotShape is circle', () => {
+    // Create a 25x25 matrix with a module outside finder patterns to test dotShape
+    const largeMatrix: boolean[][] = Array.from({ length: 25 }, (_, row) =>
+      Array.from({ length: 25 }, (_, col) => row === 12 && col === 12)
+    )
+    const svg = renderSVG(largeMatrix, resolveStyle({ dotShape: 'circle' }))
+    expect(svg).toContain('<circle')
+    // Sanity: still has a background rect
+    const rectCount = (svg.match(/<rect/g) ?? []).length
+    expect(rectCount).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders rounded modules with rx/ry when dotShape is rounded', () => {
+    // Create a 25x25 matrix with a module outside finder patterns to test dotShape
+    const largeMatrix: boolean[][] = Array.from({ length: 25 }, (_, row) =>
+      Array.from({ length: 25 }, (_, col) => row === 12 && col === 12)
+    )
+    const svg = renderSVG(largeMatrix, resolveStyle({ dotShape: 'rounded' }))
+    expect(svg).toContain('rx=')
+  })
+
+  it('applies eyeShape only to finder-pattern modules, dotShape elsewhere', () => {
+    const bigMatrix: boolean[][] = Array.from({ length: 25 }, (_, row) =>
+      Array.from({ length: 25 }, (_, col) => row === 12 && col === 12)
+    )
+    // force the single dark module (12,12) to be inside neither finder pattern for a 25x25 grid,
+    // and mark one finder-pattern cell dark too
+    bigMatrix[0][0] = true
+    const svg = renderSVG(bigMatrix, resolveStyle({ dotShape: 'circle', eyeShape: 'square' }))
+    // The center dark module (dotShape) should render as a circle, and we should also see at least one rect module (the eye).
+    expect(svg).toContain('<circle')
+    const rectModuleCount = (svg.match(/<rect/g) ?? []).length
+    expect(rectModuleCount).toBeGreaterThanOrEqual(2) // background rect + at least one square eye module
+  })
+})
