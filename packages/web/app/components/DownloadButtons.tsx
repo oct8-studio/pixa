@@ -39,11 +39,11 @@ export function DownloadButtons({ svg }: { svg: string }) {
   }
 
   return (
-    <div>
-      <button data-testid="download-svg" onClick={downloadSvg}>
+    <div className="download-row">
+      <button className="btn" data-testid="download-svg" onClick={downloadSvg}>
         Download SVG
       </button>
-      <button data-testid="download-png" onClick={downloadPng}>
+      <button className="btn btn-primary" data-testid="download-png" onClick={downloadPng}>
         Download PNG
       </button>
     </div>

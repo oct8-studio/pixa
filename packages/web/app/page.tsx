@@ -21,17 +21,31 @@ export default function Page() {
   }, [content, style])
 
   return (
-    <main>
-      <ContentForm onChange={setContent} />
-      <StylePanel onChange={setStyle} />
-      {svg ? (
-        <>
-          <QrPreview svg={svg} />
-          <DownloadButtons svg={svg} />
-        </>
-      ) : (
-        <p role="status">{error ? `Unable to generate a QR code: ${error}` : 'Enter some content to generate a QR code'}</p>
-      )}
-    </main>
+    <div className="app-shell">
+      <header className="app-header">
+        <h1>pixa</h1>
+        <p>Build customized, brandable QR codes — free, open source, no account needed.</p>
+      </header>
+      <main className="app-body">
+        <div className="editor-column">
+          <ContentForm onChange={setContent} />
+          <StylePanel onChange={setStyle} />
+        </div>
+        <div className="preview-column">
+          {svg ? (
+            <>
+              <QrPreview svg={svg} />
+              <DownloadButtons svg={svg} />
+            </>
+          ) : (
+            <div className="preview-frame">
+              <p className={`preview-status${error ? ' is-error' : ''}`} role="status">
+                {error ? `Unable to generate a QR code: ${error}` : 'Enter some content to generate a QR code'}
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
   )
 }

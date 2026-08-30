@@ -1,5 +1,7 @@
+import './globals.css'
+
 export const metadata = {
-  title: 'QR Generator',
+  title: 'pixa — QR Code Generator',
   description: 'Build customized, brandable QR codes.'
 }
 
