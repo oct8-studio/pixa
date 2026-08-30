@@ -24,7 +24,7 @@ test('live preview updates when the content input changes', async ({ page }) => 
 
 test('uploading a logo embeds it in the generated QR preview', async ({ page }) => {
   await page.goto('/')
-  await page.locator('.toggle-section-header', { hasText: 'Logo' }).click()
+  await page.locator('.segmented-option', { hasText: 'Logo' }).click()
 
   await page
     .locator('input[type="file"]')

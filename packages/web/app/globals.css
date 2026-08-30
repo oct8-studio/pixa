@@ -381,29 +381,40 @@ button {
   text-align: right;
 }
 
-.toggle-section-header {
+.segmented {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.toggle-section-header .card-title {
-  margin-bottom: 0;
-}
-
-.toggle-chevron {
+.segmented-option {
+  flex: 1;
+  min-width: max-content;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
   color: var(--text-muted);
-  transition: transform 0.15s ease;
-  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.toggle-chevron.is-open {
-  transform: rotate(90deg);
+.segmented-option:hover {
+  border-color: var(--border-strong);
 }
 
-.toggle-section-body {
-  margin-top: 14px;
+.segmented-option[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+  border: none;
 }
 
 .preview-frame {

@@ -7,20 +7,30 @@ import { ImageDropzone } from './ImageDropzone'
 const DOT_SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
 const EYE_SHAPES: EyeShape[] = ['square', 'rounded', 'circle', 'ring']
 
+type BrandingMode = 'none' | 'logo' | 'pattern' | 'blend'
+
+const BRANDING_MODES: { value: BrandingMode; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'logo', label: 'Logo' },
+  { value: 'pattern', label: 'Brand pattern' },
+  { value: 'blend', label: 'Background image' }
+]
+
 interface StyleState {
   foregroundColor: string
   backgroundColor: string
   dotShape: ModuleShape
   eyeShape: EyeShape
+  brandingMode: BrandingMode
   logoDataUrl: string | null
   logoSizeRatio: number
+  patternDataUrl: string | null
+  blendDataUrl: string | null
+  blendOpacity: number
   frameEnabled: boolean
   frameText: string
   frameColor: string
   frameTextColor: string
-  blendDataUrl: string | null
-  blendOpacity: number
-  patternDataUrl: string | null
 }
 
 const INITIAL_STATE: StyleState = {
@@ -28,15 +38,16 @@ const INITIAL_STATE: StyleState = {
   backgroundColor: '#ffffff',
   dotShape: 'square',
   eyeShape: 'square',
+  brandingMode: 'none',
   logoDataUrl: null,
   logoSizeRatio: 0.2,
+  patternDataUrl: null,
+  blendDataUrl: null,
+  blendOpacity: 0.15,
   frameEnabled: false,
   frameText: 'Scan me',
   frameColor: '#000000',
-  frameTextColor: '#ffffff',
-  blendDataUrl: null,
-  blendOpacity: 0.15,
-  patternDataUrl: null
+  frameTextColor: '#ffffff'
 }
 
 function buildStyle(s: StyleState): StyleOptions {
@@ -45,12 +56,10 @@ function buildStyle(s: StyleState): StyleOptions {
     backgroundColor: s.backgroundColor,
     dotShape: s.dotShape,
     eyeShape: s.eyeShape,
-    logo: s.logoDataUrl ? { dataUrl: s.logoDataUrl, sizeRatio: s.logoSizeRatio } : undefined,
-    frame: s.frameEnabled
-      ? { text: s.frameText, color: s.frameColor, textColor: s.frameTextColor }
-      : undefined,
-    imageBlend: s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
-    patternImage: s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined
+    logo: s.brandingMode === 'logo' && s.logoDataUrl ? { dataUrl: s.logoDataUrl, sizeRatio: s.logoSizeRatio } : undefined,
+    patternImage: s.brandingMode === 'pattern' && s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined,
+    imageBlend: s.brandingMode === 'blend' && s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
+    frame: s.frameEnabled ? { text: s.frameText, color: s.frameColor, textColor: s.frameTextColor } : undefined
   }
 }
 
@@ -100,33 +109,29 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   )
 }
 
-function CollapsibleSection({
-  title,
-  defaultOpen = false,
-  children
+function SliderField({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange
 }: {
-  title: string
-  defaultOpen?: boolean
-  children: React.ReactNode
+  label: string
+  value: number
+  min: number
+  max: number
+  step: number
+  onChange: (v: number) => void
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const id = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`
   return (
-    <div className="card">
-      <div
-        className="toggle-section-header"
-        role="button"
-        tabIndex={0}
-        onClick={() => setOpen(!open)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') setOpen(!open)
-        }}
-      >
-        <p className="card-title">{title}</p>
-        <span className={`toggle-chevron${open ? ' is-open' : ''}`} aria-hidden="true">
-          ▶
-        </span>
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <div className="slider-field">
+        <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+        <output>{Math.round(value * 100)}%</output>
       </div>
-      {open && <div className="toggle-section-body">{children}</div>}
     </div>
   )
 }
@@ -143,7 +148,7 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
   return (
     <>
       <div className="card">
-        <p className="card-title">Colors &amp; shape</p>
+        <p className="card-title">Style</p>
         <div className="field-group">
           <div className="field-row">
             <ColorField label="Foreground" value={state.foregroundColor} onChange={(v) => update({ foregroundColor: v })} />
@@ -154,75 +159,79 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
         </div>
       </div>
 
-      <CollapsibleSection title="Brand pattern">
+      <div className="card">
+        <p className="card-title">Branding</p>
         <div className="field-group">
-          <ImageDropzone
-            label="Upload brand image"
-            hint="Colors the whole QR pattern like a logo — try pairing with ring eyes"
-            value={state.patternDataUrl}
-            onChange={(dataUrl) => update({ patternDataUrl: dataUrl })}
-          />
-        </div>
-      </CollapsibleSection>
+          <div className="field">
+            <label>Technique</label>
+            <div className="segmented" role="group" aria-label="Branding technique">
+              {BRANDING_MODES.map((mode) => (
+                <button
+                  key={mode.value}
+                  type="button"
+                  className="segmented-option"
+                  aria-pressed={state.brandingMode === mode.value}
+                  onClick={() => update({ brandingMode: mode.value })}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <CollapsibleSection title="Logo">
-        <div className="field-group">
-          <ImageDropzone
-            label="Upload logo"
-            hint="PNG, JPG or SVG — placed in the center"
-            value={state.logoDataUrl}
-            onChange={(dataUrl) => update({ logoDataUrl: dataUrl })}
-          />
-          {state.logoDataUrl && (
-            <div className="field">
-              <label htmlFor="logo-size">Logo size</label>
-              <div className="slider-field">
-                <input
-                  id="logo-size"
-                  type="range"
+          {state.brandingMode === 'logo' && (
+            <>
+              <ImageDropzone
+                label="Upload logo"
+                hint="PNG, JPG or SVG — placed in the center"
+                value={state.logoDataUrl}
+                onChange={(dataUrl) => update({ logoDataUrl: dataUrl })}
+              />
+              {state.logoDataUrl && (
+                <SliderField
+                  label="Logo size"
+                  value={state.logoSizeRatio}
                   min={0.1}
                   max={0.25}
                   step={0.01}
-                  value={state.logoSizeRatio}
-                  onChange={(e) => update({ logoSizeRatio: Number(e.target.value) })}
+                  onChange={(v) => update({ logoSizeRatio: v })}
                 />
-                <output>{Math.round(state.logoSizeRatio * 100)}%</output>
-              </div>
-            </div>
+              )}
+            </>
           )}
-        </div>
-      </CollapsibleSection>
 
-      <CollapsibleSection title="Background image">
-        <div className="field-group">
-          <ImageDropzone
-            label="Upload image"
-            hint="Blended subtly behind the code"
-            value={state.blendDataUrl}
-            onChange={(dataUrl) => update({ blendDataUrl: dataUrl })}
-          />
-          {state.blendDataUrl && (
-            <div className="field">
-              <label htmlFor="blend-opacity">Blend opacity</label>
-              <div className="slider-field">
-                <input
-                  id="blend-opacity"
-                  type="range"
+          {state.brandingMode === 'pattern' && (
+            <ImageDropzone
+              label="Upload brand image"
+              hint="Colors the whole QR pattern like a logo — try pairing with ring eyes"
+              value={state.patternDataUrl}
+              onChange={(dataUrl) => update({ patternDataUrl: dataUrl })}
+            />
+          )}
+
+          {state.brandingMode === 'blend' && (
+            <>
+              <ImageDropzone
+                label="Upload image"
+                hint="Blended subtly behind the code"
+                value={state.blendDataUrl}
+                onChange={(dataUrl) => update({ blendDataUrl: dataUrl })}
+              />
+              {state.blendDataUrl && (
+                <SliderField
+                  label="Blend opacity"
+                  value={state.blendOpacity}
                   min={0.05}
                   max={0.25}
                   step={0.01}
-                  value={state.blendOpacity}
-                  onChange={(e) => update({ blendOpacity: Number(e.target.value) })}
+                  onChange={(v) => update({ blendOpacity: v })}
                 />
-                <output>{Math.round(state.blendOpacity * 100)}%</output>
-              </div>
-            </div>
+              )}
+            </>
           )}
-        </div>
-      </CollapsibleSection>
 
-      <CollapsibleSection title="Frame &amp; CTA">
-        <div className="field-group">
+          <div className="divider" />
+
           <label className="checkbox-field">
             <input
               type="checkbox"
@@ -248,7 +257,7 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
             </>
           )}
         </div>
-      </CollapsibleSection>
+      </div>
     </>
   )
 }
