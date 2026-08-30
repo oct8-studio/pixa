@@ -64,3 +64,23 @@ describe('renderSVG shapes', () => {
     expect(rectModuleCount).toBeGreaterThanOrEqual(2) // background rect + at least one square eye module
   })
 })
+
+describe('renderSVG logo and frame', () => {
+  it('overlays a logo image centered on the code', () => {
+    const svg = renderSVG(matrix, resolveStyle({ logo: { dataUrl: 'data:image/png;base64,abc' } }))
+    expect(svg).toContain('<image href="data:image/png;base64,abc"')
+  })
+
+  it('adds a frame band with CTA text below the code', () => {
+    const svg = renderSVG(matrix, resolveStyle({ frame: { text: 'Scan me' } }))
+    expect(svg).toContain('Scan me')
+    expect(svg).toContain('<text')
+  })
+
+  it('increases total svg height by 40 when a frame is present', () => {
+    const withoutFrame = renderSVG(matrix, resolveStyle())
+    const withFrame = renderSVG(matrix, resolveStyle({ frame: { text: 'Scan me' } }))
+    const heightOf = (svg: string) => Number(svg.match(/height="(\d+)"/)?.[1])
+    expect(heightOf(withFrame)).toBe(heightOf(withoutFrame) + 40)
+  })
+})

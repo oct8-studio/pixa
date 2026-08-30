@@ -34,10 +34,33 @@ export function renderSVG(matrix: boolean[][], style: ResolvedStyle): string {
     }
   }
 
+  let logoLayer = ''
+  if (style.logo) {
+    const logoSize = gridSize * MODULE_SIZE * style.logo.sizeRatio
+    const logoX = quietZone + (gridSize * MODULE_SIZE - logoSize) / 2
+    const logoY = quietZone + (gridSize * MODULE_SIZE - logoSize) / 2
+    const padding = 4
+    logoLayer =
+      `<rect x="${logoX - padding}" y="${logoY - padding}" width="${logoSize + padding * 2}" height="${logoSize + padding * 2}" fill="${style.backgroundColor}" />` +
+      `<image href="${style.logo.dataUrl}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
+  }
+
+  const frameHeight = 40
+  let frameLayer = ''
+  if (style.frame) {
+    frameLayer =
+      `<rect x="0" y="${dimension}" width="${dimension}" height="${frameHeight}" fill="${style.frame.color}" />` +
+      `<text x="${dimension / 2}" y="${dimension + frameHeight / 2 + 6}" text-anchor="middle" font-size="20" fill="${style.frame.textColor}">${style.frame.text}</text>`
+  }
+
+  const totalHeight = dimension + (style.frame ? frameHeight : 0)
+
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${dimension}" viewBox="0 0 ${dimension} ${dimension}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${totalHeight}" viewBox="0 0 ${dimension} ${totalHeight}">` +
     `<rect x="0" y="0" width="${dimension}" height="${dimension}" fill="${style.backgroundColor}" />` +
     modules +
+    logoLayer +
+    frameLayer +
     `</svg>`
   )
 }
