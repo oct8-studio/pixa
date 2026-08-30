@@ -9,6 +9,10 @@ async function decode(png: Buffer): Promise<string | null> {
   return result?.data ?? null
 }
 
+// A tiny 1x1 solid-color PNG, used as a stand-in for a real logo/blend image.
+const TINY_PNG_DATA_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='
+
 describe('generateQR scan round-trip', () => {
   it('produces svg and a decodable png for a plain url', async () => {
     const { svg, toPng } = generateQR({ type: 'url', value: 'https://example.com' })
@@ -28,6 +32,24 @@ describe('generateQR scan round-trip', () => {
     const { toPng } = generateQR(
       { type: 'url', value: 'https://example.com' },
       { dotShape: 'rounded', eyeShape: 'circle', foregroundColor: '#003366', backgroundColor: '#eef2ff' }
+    )
+    const decoded = await decode(await toPng())
+    expect(decoded).toBe('https://example.com')
+  })
+
+  it('round-trips a QR code with a logo overlay at max size ratio (0.25)', async () => {
+    const { toPng } = generateQR(
+      { type: 'url', value: 'https://example.com' },
+      { logo: { dataUrl: TINY_PNG_DATA_URL, sizeRatio: 0.25 } }
+    )
+    const decoded = await decode(await toPng())
+    expect(decoded).toBe('https://example.com')
+  })
+
+  it('round-trips a QR code with an image blend at max opacity (0.25)', async () => {
+    const { toPng } = generateQR(
+      { type: 'url', value: 'https://example.com' },
+      { imageBlend: { dataUrl: TINY_PNG_DATA_URL, opacity: 0.25 } }
     )
     const decoded = await decode(await toPng())
     expect(decoded).toBe('https://example.com')
