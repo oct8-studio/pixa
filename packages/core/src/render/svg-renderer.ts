@@ -35,7 +35,7 @@ export function renderSVG(matrix: boolean[][], style: ResolvedStyle): string {
   let blendLayer = ''
   if (style.imageBlend) {
     const contentSize = gridSize * MODULE_SIZE
-    blendLayer = `<image href="${style.imageBlend.dataUrl}" x="${quietZone}" y="${quietZone}" width="${contentSize}" height="${contentSize}" opacity="${style.imageBlend.opacity}" preserveAspectRatio="xMidYMid slice" />`
+    blendLayer = `<image href="${escapeXml(style.imageBlend.dataUrl)}" x="${quietZone}" y="${quietZone}" width="${contentSize}" height="${contentSize}" opacity="${style.imageBlend.opacity}" preserveAspectRatio="xMidYMid slice" />`
   }
 
   let modules = ''
@@ -57,7 +57,7 @@ export function renderSVG(matrix: boolean[][], style: ResolvedStyle): string {
     const padding = 4
     logoLayer =
       `<rect x="${logoX - padding}" y="${logoY - padding}" width="${logoSize + padding * 2}" height="${logoSize + padding * 2}" fill="${escapeXml(style.backgroundColor)}" />` +
-      `<image href="${style.logo.dataUrl}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
+      `<image href="${escapeXml(style.logo.dataUrl)}" x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" />`
   }
 
   const frameHeight = 40

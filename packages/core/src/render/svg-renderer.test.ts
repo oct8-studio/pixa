@@ -110,6 +110,20 @@ describe('renderSVG escaping', () => {
     expect(svg).not.toContain(rawColor)
     expect(svg).toContain('&quot; onload=&quot;alert(2)')
   })
+
+  it('escapes a logo dataUrl containing markup-breaking characters', () => {
+    const rawDataUrl = `data:image/png;base64,AAA" onload="alert(1)`
+    const svg = renderSVG(matrix, { ...resolveStyle(), logo: { dataUrl: rawDataUrl, sizeRatio: 0.2 } })
+    expect(svg).not.toContain(rawDataUrl)
+    expect(svg).toContain('&quot; onload=&quot;alert(1)')
+  })
+
+  it('escapes an imageBlend dataUrl containing markup-breaking characters', () => {
+    const rawDataUrl = `data:image/png;base64,AAA" onload="alert(1)`
+    const svg = renderSVG(matrix, { ...resolveStyle(), imageBlend: { dataUrl: rawDataUrl, opacity: 0.15 } })
+    expect(svg).not.toContain(rawDataUrl)
+    expect(svg).toContain('&quot; onload=&quot;alert(1)')
+  })
 })
 
 describe('renderSVG image blend', () => {
