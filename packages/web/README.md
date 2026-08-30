@@ -66,10 +66,29 @@ new Vercel project at this repo, set the project's root directory to
 `cd ../.. && pnpm install && pnpm --filter @pixa/core build && pnpm --filter @pixa/web build`
 so the workspace dependency gets built first.
 
-**Any other Node host** (Railway, Render, Fly.io, a plain VM, Docker): run
+**Any other Node host** (Railway, Render, Fly.io, a plain VM): run
 the three commands under [Building for production](#building-for-production)
 above, then serve with `next start` (or your platform's equivalent) from
 `packages/web`.
+
+**Docker** (optional — not required for local dev or a plain Node host). A
+`Dockerfile` and `docker-compose.yml` at the repo root build this app using
+Next's [standalone output](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
+(`next.config.mjs` sets `output: 'standalone'`), which traces and bundles
+only the server files actually needed — including the native `sharp`
+module — into a small runtime image:
+
+```bash
+docker compose up --build   # from the repo root
+# app available at http://localhost:3000
+```
+
+or without compose:
+
+```bash
+docker build -t pixa-web .
+docker run -p 3000:3000 pixa-web
+```
 
 ## Testing
 
