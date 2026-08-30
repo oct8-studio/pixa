@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/.next
+**/test-results
+**/playwright-report
+.git
+.superpowers
+**/*.tsbuildinfo
+Dockerfile
+docker-compose.yml
+.dockerignore
