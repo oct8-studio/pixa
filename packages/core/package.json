@@ -1,5 +1,5 @@
 {
-  "name": "@qr-gen/core",
+  "name": "@pixa/core",
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
