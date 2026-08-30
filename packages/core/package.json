@@ -1,0 +1,22 @@
+{
+  "name": "@qr-gen/core",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0",
+    "jsqr": "^1.4.0",
+    "@types/qrcode": "^1.5.5"
+  }
+}
