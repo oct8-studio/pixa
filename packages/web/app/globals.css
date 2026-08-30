@@ -285,6 +285,13 @@ button {
   border-radius: 50%;
 }
 
+.shape-swatch.ring {
+  border-radius: 50%;
+  background: none;
+  border: 3px solid currentColor;
+  box-sizing: border-box;
+}
+
 .dropzone {
   border: 1.5px dashed var(--border-strong);
   border-radius: var(--radius-md);

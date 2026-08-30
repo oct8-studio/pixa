@@ -60,6 +60,20 @@ describe('resolveStyle', () => {
     expect(() => resolveStyle({ imageBlend: { dataUrl: 'http://evil.example/x.png' } })).toThrow(/imageBlend\.dataUrl/)
   })
 
+  it('forces error correction to H when a patternImage is present', () => {
+    const resolved = resolveStyle({ patternImage: { dataUrl: 'data:image/png;base64,x' }, errorCorrectionLevel: 'L' })
+    expect(resolved.errorCorrectionLevel).toBe('H')
+  })
+
+  it('throws when patternImage.dataUrl does not start with data:image/', () => {
+    expect(() => resolveStyle({ patternImage: { dataUrl: 'http://evil.example/x.png' } })).toThrow(/patternImage\.dataUrl/)
+  })
+
+  it('accepts eyeShape "ring" without throwing', () => {
+    expect(() => resolveStyle({ eyeShape: 'ring' })).not.toThrow()
+    expect(resolveStyle({ eyeShape: 'ring' }).eyeShape).toBe('ring')
+  })
+
   it('clamps a negative sizeRatio/opacity to 0 instead of passing it through', () => {
     const resolved = resolveStyle({
       logo: { dataUrl: 'data:image/png;base64,x', sizeRatio: -3 },

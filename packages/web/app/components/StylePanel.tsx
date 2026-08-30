@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import type { StyleOptions, ModuleShape } from '@pixa/core'
+import type { StyleOptions, ModuleShape, EyeShape } from '@pixa/core'
 import { ImageDropzone } from './ImageDropzone'
 
-const SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
+const DOT_SHAPES: ModuleShape[] = ['square', 'rounded', 'circle']
+const EYE_SHAPES: EyeShape[] = ['square', 'rounded', 'circle', 'ring']
 
 interface StyleState {
   foregroundColor: string
   backgroundColor: string
   dotShape: ModuleShape
-  eyeShape: ModuleShape
+  eyeShape: EyeShape
   logoDataUrl: string | null
   logoSizeRatio: number
   frameEnabled: boolean
@@ -19,6 +20,7 @@ interface StyleState {
   frameTextColor: string
   blendDataUrl: string | null
   blendOpacity: number
+  patternDataUrl: string | null
 }
 
 const INITIAL_STATE: StyleState = {
@@ -33,7 +35,8 @@ const INITIAL_STATE: StyleState = {
   frameColor: '#000000',
   frameTextColor: '#ffffff',
   blendDataUrl: null,
-  blendOpacity: 0.15
+  blendOpacity: 0.15,
+  patternDataUrl: null
 }
 
 function buildStyle(s: StyleState): StyleOptions {
@@ -46,24 +49,27 @@ function buildStyle(s: StyleState): StyleOptions {
     frame: s.frameEnabled
       ? { text: s.frameText, color: s.frameColor, textColor: s.frameTextColor }
       : undefined,
-    imageBlend: s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined
+    imageBlend: s.blendDataUrl ? { dataUrl: s.blendDataUrl, opacity: s.blendOpacity } : undefined,
+    patternImage: s.patternDataUrl ? { dataUrl: s.patternDataUrl } : undefined
   }
 }
 
-function ShapePicker({
+function ShapePicker<T extends string>({
   label,
+  shapes,
   value,
   onChange
 }: {
   label: string
-  value: ModuleShape
-  onChange: (shape: ModuleShape) => void
+  shapes: T[]
+  value: T
+  onChange: (shape: T) => void
 }) {
   return (
     <div className="field">
       <label>{label}</label>
       <div className="shape-options" role="group" aria-label={label}>
-        {SHAPES.map((shape) => (
+        {shapes.map((shape) => (
           <button
             key={shape}
             type="button"
@@ -143,10 +149,21 @@ export function StylePanel({ onChange }: { onChange: (style: StyleOptions) => vo
             <ColorField label="Foreground" value={state.foregroundColor} onChange={(v) => update({ foregroundColor: v })} />
             <ColorField label="Background" value={state.backgroundColor} onChange={(v) => update({ backgroundColor: v })} />
           </div>
-          <ShapePicker label="Dot style" value={state.dotShape} onChange={(v) => update({ dotShape: v })} />
-          <ShapePicker label="Eye style" value={state.eyeShape} onChange={(v) => update({ eyeShape: v })} />
+          <ShapePicker label="Dot style" shapes={DOT_SHAPES} value={state.dotShape} onChange={(v) => update({ dotShape: v })} />
+          <ShapePicker label="Eye style" shapes={EYE_SHAPES} value={state.eyeShape} onChange={(v) => update({ eyeShape: v })} />
         </div>
       </div>
+
+      <CollapsibleSection title="Brand pattern">
+        <div className="field-group">
+          <ImageDropzone
+            label="Upload brand image"
+            hint="Colors the whole QR pattern like a logo — try pairing with ring eyes"
+            value={state.patternDataUrl}
+            onChange={(dataUrl) => update({ patternDataUrl: dataUrl })}
+          />
+        </div>
+      </CollapsibleSection>
 
       <CollapsibleSection title="Logo">
         <div className="field-group">
